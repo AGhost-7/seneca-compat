@@ -1,14 +1,5 @@
 
-const seneca = require('../seneca')({
-	log: 'silent',
-	actcache: false,
-	timeout: 30000,
-	default_plugins: {
-		'mem-store': false,
-		transport: false,
-		web: false
-	}
-});
+const seneca = require('../util/seneca')();
 
 let iterations = 10000,
 	start,
@@ -25,7 +16,7 @@ const done = () => {
 	console.log('time elapsed:', end - start);
 };
 
-var tick = function() {
+const tick = function() {
 	iterations--;
 	if(iterations < 0) return done();
 	seneca.act({
@@ -34,7 +25,7 @@ var tick = function() {
 };
 
 seneca.ready(function() {
-	console.log('starting benchmark');
+	console.log('starting benchmark: act');
 	start = Date.now();
 	tick();
 });
