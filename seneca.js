@@ -21,7 +21,7 @@ var assert   = require('assert')
 // External modules
 var _            = require('lodash')
 var minimist     = require('minimist')
-var nid          = require('nid')
+var nid = require('./lib/nid');
 var jsonic       = require('jsonic')
 var patrun       = require('patrun')
 var parambulator = require('parambulator')
@@ -297,7 +297,7 @@ function make_seneca( initial_options ) {
   paramcheck.options.validate(so,thrower)
 
   // Identifier generator.
-  root.idgen = nid({length:so.idlen})
+  root.idgen = nid;
 
 
   // Create a unique identifer for this instance.
@@ -1757,7 +1757,7 @@ function make_seneca( initial_options ) {
     var delegate = Object.create(self)
     var act = self.act
 
-    delegate.did = nid()
+    delegate.did = nid;
 
     delegate.act = function() {
       var spec = parse_pattern( self, common.arrayify(arguments), 'done:f?' )
