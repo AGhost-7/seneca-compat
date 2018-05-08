@@ -19,7 +19,7 @@
     "startup"
   ],
   "version": "0.6.1",
-  "license": "MIT",
+  "license": "Apache 2",
   "homepage": "http://senecajs.org",
   "author": "Richard Rodger (http://richardrodger.com/)",
   "contributors": [
