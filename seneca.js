@@ -1365,8 +1365,6 @@ function make_seneca( initial_options ) {
     
 
     logging.log_act_in( root, {actid:actid}, actmeta, callargs, prior_ctxt )
-    
-    instance.emit('act-in', callargs)
 
     var delegate = act_make_delegate( instance, tx, callargs, actmeta, prior_ctxt )
 
@@ -1398,7 +1396,6 @@ function make_seneca( initial_options ) {
           }
         }
         else {
-          instance.emit('act-out',callargs,result[1])
           result[0] = null
 
           logging.log_act_out( 
