@@ -28,7 +28,6 @@ var parambulator = require('parambulator')
 var norma        = require('norma')
 var stats        = require('rolling-stats')
 var makeuse      = require('use-plugin')
-var lrucache     = require('lru-cache')
 var zig          = require('zig')
 var gex          = require('gex')
 var executor     = require('gate-executor')
@@ -233,9 +232,6 @@ function make_seneca( initial_options ) {
             timeout:         33333,
             status_interval: 60000,
 
-            actcache:        true,
-            actcache_size:   1111,
-
             zig:{},
 
             trace:{
@@ -369,7 +365,6 @@ function make_seneca( initial_options ) {
     builtin:   ''
   })
 
-  private$.actcache       = lrucache({max:so.actcache_size})
   private$.wait_for_ready = false
 
   private$.actrouter    = so.internal.actrouter
@@ -1351,8 +1346,6 @@ function make_seneca( initial_options ) {
 
     cb = cb || common.noop
 
-    if( act_cache_check( instance, args, prior_ctxt, cb ) ) return;
-
     var actstats = act_stats_call( actmeta.pattern )
 
 
@@ -1390,14 +1383,6 @@ function make_seneca( initial_options ) {
         
         var result  = arr(arguments)
         var call_cb = true
-
-        if( so.actcache ) {
-          private$.actcache.set(actid,{
-            result:result,
-            actmeta:actmeta,
-            when:Date.now()
-          })
-        }
 
         if( err ) {
           private$.stats.act.fails++
@@ -1571,41 +1556,6 @@ function make_seneca( initial_options ) {
     if( so.errhandler ) {
       so.errhandler.call(instance,err)
     }
-  }
-
-
-  // Check if actid has already been seen, and if action cache is active,
-  // then provide cached result, if any. Return true in this case.
-  //
-  //    * _instance_    (object)    &rarr;  seneca instance
-  //    * _args_        (object)    &rarr;  action arguments
-  //    * _prior_ctxt_  (object?)   &rarr;  prior action context, if any
-  //    * _actcb_       (function)  &rarr;  action arguments
-  function act_cache_check( instance, args, prior_ctxt, actcb ) {
-    assert.ok( _.isObject(instance), 'act_cache_check; instance; isObject')
-    assert.ok( _.isObject(args),     'act_cache_check; args; isObject')
-    assert.ok( !prior_ctxt || _.isObject(prior_ctxt),     
-               'act_cache_check; prior_ctxt; isObject')
-    assert.ok( !actcb || _.isFunction(actcb),  
-               'act_cache_check; actcb; isFunction')
-
-    var actid = args.actid$
-
-    if( null != actid && so.actcache ) {
-      var actdetails = private$.actcache.get(actid)      
-
-      if( actdetails ) {
-        var actmeta = actdetails.actmeta || {}
-        private$.stats.act.cache++
-        
-        logging.log_act_cache( root, {actid:actid}, actmeta, args, prior_ctxt )
-        
-        if( actcb ) actcb.apply( instance, actdetails.result );
-        return true;
-      }
-    }
-    
-    return false;
   }
 
 
