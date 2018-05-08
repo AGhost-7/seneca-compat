@@ -592,11 +592,9 @@ function make_seneca( initial_options ) {
 
 
   // all optional
-  function api_make() {
-    var self = this
-    var args = arr(arguments)
-    args.unshift(self)
-    return private$.entity.make$.apply(private$.entity,args)
+	function api_make(entity$, assign) {
+		const canon = private$.entity.newCanon$(entity$);
+		return new make_entity.Entity(canon, this);
   }
   root.make$ = root.make
 
@@ -1854,7 +1852,6 @@ function make_seneca( initial_options ) {
   // Create entity delegate.
   var sd = root.delegate()
 
-  // Template entity that makes all others.
   private$.entity = make_entity({},sd)
 
 

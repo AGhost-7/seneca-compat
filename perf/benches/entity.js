@@ -9,12 +9,16 @@ const response = {
 	lastName: 'bar'
 };
 
+for(var i = 0; i < 20; i++) {
+	response[String.fromCodePoint(65 + i)] = 'this is sample data';
+}
+
 seneca.add({
 	cmd: 'load',
 	name: 'person',
 	role: 'entity'
-}, (args, done) => {
-	done(null, response);
+}, (args, callback) => {
+	callback(null, args.ent.data$(response));
 });
 
 const done = () => {
@@ -24,12 +28,12 @@ const done = () => {
 
 const query = { id: 1 };
 const tick = () => {
+	if(iterations <= 0) return done();
 	iterations--;
-	if(iterations < 0) return done();
-	seneca.make('person').load$(query, tick);
+	seneca.make('sys/person').load$(query, tick);
 };
 
-seneca.ready(() => {
+seneca.on('ready', () => {
 	console.log('starting benchmark: entity');
 	start = Date.now();
 	tick();
