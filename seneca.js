@@ -313,7 +313,7 @@ function make_seneca( initial_options ) {
   })
 
 
-	root.log = logging.createLogger(logging.parseLevel(initial_options));
+	root.log = logging.createLogger(initial_options);
 
   // Error events are fatal, unless you're undead.  These are not the
   // same as action errors, these are unexpected internal issues.
