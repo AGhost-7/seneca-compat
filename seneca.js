@@ -128,7 +128,6 @@ function make_seneca( initial_options ) {
   root.sub = api_sub
 
 
-  root.logroute   = api_logroute
   root.register   = api_register
   root.depends    = api_depends
   root.export     = api_export
@@ -314,10 +313,7 @@ function make_seneca( initial_options ) {
   })
 
 
-  private$.logrouter = logging.makelogrouter(so.log)
-
-  root.log = logging.makelog(private$.logrouter,root.id)
-
+	root.log = logging.createLogger(logging.parseLevel(initial_options));
 
   // Error events are fatal, unless you're undead.  These are not the
   // same as action errors, these are unexpected internal issues.
@@ -431,13 +427,6 @@ function make_seneca( initial_options ) {
     console_log('')
   }
 
-
-  function api_logroute(entry,handler) {
-    if( 0 === arguments.length ) return private$.logrouter.toString()
-
-    entry.handler = handler || entry.handler
-    logging.makelogroute(entry,private$.logrouter)
-  }
 
 
 
@@ -1641,12 +1630,6 @@ function make_seneca( initial_options ) {
       delegate_args.ungate$ = !!callargs.gate$
     }
     var delegate = instance.delegate( delegate_args )
-    
-
-    // automate actid log insertion
-    delegate.log = logging.make_delegate_log(callargs.actid$,actmeta,instance)
-    logging.makelogfuncs(delegate)
-
 
     if( actmeta.priormeta ) {
       delegate.prior = function(prior_args,prior_cb) {
@@ -1813,9 +1796,8 @@ function make_seneca( initial_options ) {
     so = private$.exports.options = 
       (null == options) ? optioner.get() : optioner.set( options );
 
-    if( options && options.log ) {
-      private$.logrouter = logging.makelogrouter(so.log)
-      self.log = logging.makelog(private$.logrouter,self.id)
+		if( options && options.log ) {
+			console.trace('api_options::options.log');
     }
 
     return so
@@ -1922,16 +1904,8 @@ function make_seneca( initial_options ) {
     return sd
   }
 
-
-
   // Create entity delegate.
   var sd = root.delegate()
-  sd.log = function() {
-    var args = ['entity']
-    root.log.apply(this,args.concat(arr(arguments)))
-  }
-  logging.makelogfuncs(sd)
-  
 
   // Template entity that makes all others.
   private$.entity = make_entity({},sd)
