@@ -1,5 +1,5 @@
 {
-  "name": "seneca",
+  "name": "seneca-compat",
   "description": "A Micro-Services Framework for Node.js",
   "keywords": [
     "micro",
@@ -12,27 +12,15 @@
     "micro services",
     "micro service",
     "framework",
-    "minimum",
-    "viable",
-    "product",
     "toolkit",
-    "startup"
+		"seneca",
+		"compat"
   ],
   "version": "0.6.1",
   "license": "LGPL-3.0-only",
   "homepage": "http://senecajs.org",
-  "author": "Richard Rodger (http://richardrodger.com/)",
+  "author": "",
   "contributors": [
-    "Richard Rodger (http://richardrodger.com)",
-    "Peter Elger",
-    "Cristian Ianto",
-    "Dominic Tarr",
-    "David Mark Clements",
-    "Nicolas Herment",
-    "Maciej Małecki (http://mmalecki.com)",
-    "Jake Pruitt",
-    "Marian Radulescu",
-    "Alexandru Mircea"
   ],
   "dependencies": {
     "async": "~0.9.0",
@@ -54,20 +42,11 @@
     "use-plugin": "~0.3.1"
   },
   "main": "seneca.js",
-  "files": [
-    "LICENSE.txt",
-    "README.md",
-    "CHANGES.md",
-    "lib",
-    "seneca.js"
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/rjrodger/seneca.git"
+    "url": "https://github.com/AGhost-7/seneca-compat.git"
   },
   "scripts": {
-    "test": "./test.sh",
-    "build": "./build.sh"
   },
   "devDependencies": {
     "body-parser": "^1.11.0",
