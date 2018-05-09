@@ -13,8 +13,6 @@ var VERSION = '0.6.1'
 // Node API modules
 var util     = require('util')
 var events   = require('events')
-var net      = require('net')
-var repl     = require('repl')
 var assert   = require('assert')
 
 
