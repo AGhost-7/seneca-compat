@@ -40,7 +40,7 @@ var error        = require('eraro')({
 
 
 // Internal modules
-var make_entity  = require('./lib/entity')
+var Entity  = require('./lib/entity')
 var store        = require('./lib/store')
 var logging      = require('./lib/logging')
 var plugin_util  = require('./lib/plugin-util')
@@ -396,7 +396,7 @@ function make_seneca( initial_options ) {
     print:      common.print,
 
     router:     function() { return patrun() },
-    parsecanon: make_entity.parsecanon,
+    parsecanon: Entity.parseCanon,
   }
 
 
@@ -594,7 +594,7 @@ function make_seneca( initial_options ) {
   // all optional
 	function api_make(entity$, assign) {
 		const canon = private$.entity.newCanon$(entity$);
-		return new make_entity.Entity(canon, this);
+		return new Entity(canon, this);
   }
   root.make$ = root.make
 
@@ -1852,7 +1852,7 @@ function make_seneca( initial_options ) {
   // Create entity delegate.
   var sd = root.delegate()
 
-  private$.entity = make_entity({},sd)
+  private$.entity = new Entity({}, sd);
 
 
   // DEPRECATED 
