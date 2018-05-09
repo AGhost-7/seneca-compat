@@ -22,7 +22,6 @@
   "author": "",
   "contributors": [],
   "dependencies": {
-    "async": "~0.9.0",
     "eraro": "~0.4.1",
     "gate-executor": "~0.2.2",
     "gex": "~0.2.0",
