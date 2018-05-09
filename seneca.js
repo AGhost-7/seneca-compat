@@ -28,7 +28,6 @@ var parambulator = require('parambulator')
 var norma        = require('norma')
 var stats        = require('rolling-stats')
 var makeuse      = require('use-plugin')
-var zig          = require('zig')
 var gex          = require('gex')
 var executor     = require('gate-executor')
 
@@ -161,8 +160,6 @@ function make_seneca( initial_options ) {
   root.findact       = api_findact
   root.findact.mark  = 'top'
 
-  root.start = api_start
-
 
   // Legacy API; Deprecated.
 
@@ -231,8 +228,6 @@ function make_seneca( initial_options ) {
             idlen:           12,
             timeout:         33333,
             status_interval: 60000,
-
-            zig:{},
 
             trace:{
               act:     false,
@@ -1695,105 +1690,6 @@ function make_seneca( initial_options ) {
   }
 
 
-
-  function api_start( errhandler ) {
-    var sd = this.delegate()
-    var options = sd.options()
-    options.zig = options.zig || {}
-
-
-    function make_fn(self,origargs) {
-      var args = parse_pattern(self,origargs,'fn:f?')
-
-      var actargs = _.extend(
-        {},
-        args.moreobjargs ? args.moreobjargs : {},
-        args.objargs ? args.objargs : {},
-        args.strargs ? jsonic( args.strargs ) : {}
-      )
-
-      var fn
-      if( args.fn ) {
-        fn = function(data,done){
-          return args.fn.call(self,data,done)
-        }
-      }
-      else {
-        fn = function(data,done){
-          /* jshint evil:true */
-
-          if( args.strargs ) {
-            var $ = data
-            _.each(actargs,function(v,k){
-              if( _.isString(v) && 0===v.indexOf('$.') ) {
-                actargs[k] = eval(v)
-              }
-            })
-          }
-
-          self.act(actargs,done)
-          return true
-        }
-        fn.nm = args.strargs
-      }
-
-      return fn
-    }
-
-
-    var dzig = zig({
-      timeout: options.zig.timeout || options.timeout,
-      trace: options.zig.trace
-    })
-
-    dzig.start(function(){
-      var self = this
-      dzig.end(function(){
-        if( errhandler ) errhandler.apply(self,arguments);
-      })
-    })
-    
-    sd.end = function(cb){
-      var self = this
-      dzig.end(function(){
-        if( cb ) return cb.apply(self,arguments);
-        if( errhandler ) return errhandler.apply(self,arguments);
-      })
-      return self
-    }
-
-    sd.wait = function(){
-      dzig.wait(make_fn(this,arguments))
-      return this
-    }
-
-    sd.step = function(){
-      dzig.step(make_fn(this,arguments))
-      return this
-    }
-
-    sd.run = function(){
-      dzig.run(make_fn(this,arguments))
-      return this
-    }
-
-    sd.if = function(cond){
-      dzig.if(cond)
-      return this
-    }
-
-    sd.endif = function(){
-      dzig.endif()
-      return this
-    }
-
-    sd.fire = function(){
-      dzig.step(make_fn(this,arguments))
-      return this
-    }
-
-    return sd
-  }
 
   // Create entity delegate.
   var sd = root.delegate()
