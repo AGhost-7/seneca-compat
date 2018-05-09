@@ -132,9 +132,6 @@ function make_seneca( initial_options ) {
 
   root.make       = api_make
   root.make$      = api_make
-  root.listen     = api_listen
-  root.client     = api_client
-  root.cluster    = api_cluster
   root.hasplugin  = api_hasplugin
   root.findplugin = api_findplugin
   root.pin        = api_pin
@@ -260,7 +257,6 @@ function make_seneca( initial_options ) {
 
             internal: {
               actrouter:    patrun(),
-              clientrouter: patrun(pin_patrun_customizer),
               subrouter:    patrun(pin_patrun_customizer),
               close_signals: {
                 SIGHUP:   true, 
@@ -363,7 +359,6 @@ function make_seneca( initial_options ) {
   private$.wait_for_ready = false
 
   private$.actrouter    = so.internal.actrouter
-  private$.clientrouter = so.internal.clientrouter
   private$.subrouter    = so.internal.subrouter
 
 
@@ -594,103 +589,6 @@ function make_seneca( initial_options ) {
   root.make$ = root.make
 
 
-
-
-  function api_listen() {
-    var self = this
-
-    var opts   = self.options().transport || {}
-    var config = parseConfig( arr(arguments), opts )
-
-    self.act('role:transport,cmd:listen',{config:config,gate$:true},function(err) {
-      if( err ) return self.die(error(err,'transport_listen',config))
-    })
-
-    return self
-  }
-
-
-
-  function api_client() {
-    var self = this
-
-    var opts   = self.options().transport || {}
-    var config = parseConfig( arr(arguments), opts )
-
-    // Queue messages while waiting for client to become active.
-    var sendqueue = []
-    var sendclient = {
-      send: function( args, done ) {
-        var tosend = {instance:this, args:args, done:done }
-        self.log.debug('client','sendqueue-add',sendqueue.length+1,config,tosend)
-        sendqueue.push( tosend )
-      }
-    }
-
-    // TODO: validate pin, pins args
-
-    var pins = config.pins || [config.pin] || ['']
-
-    pins = _.map(pins, function(pin){
-      return _.isString(pin) ? jsonic(pin) : pin
-    })
-
-
-    _.each(pins,function(pin) {
-
-      // Only wrap if pin is specific.
-      // Don't want to wrap all patterns, esp. system ones!
-      if( 0 < _.keys(pin).length ) {
-        self.wrap(pin,function(args,done){
-          sendclient.send.call( this, args, done ) 
-        })
-      }
-
-      // For patterns not locally defined.
-      private$.clientrouter.add( 
-        pin,
-        {
-          func: function(args,done) { 
-            sendclient.send.call( this, args, done ) 
-          },
-          log:        self.log,
-          argpattern: common.argpattern(pin),
-          id:         'CLIENT',
-          client$:    true
-        })
-    })
-    
-    // Create client.
-    self.act( 
-      'role:transport,cmd:client',
-      {config:config,gate$:true},
-      function(err,liveclient) {
-        if( err ) return self.die(error(err,'transport_client',config));
-        if( null == liveclient ) 
-          return self.die(error('transport_client_null',common.clean(config)));
-
-        // Process any messages waiting for this client, 
-        // before bringing client online.
-        function sendnext() {
-          if( 0 === sendqueue.length ) {
-            sendclient = liveclient
-            self.log.debug('client','sendqueue-clear',config)
-          }
-          else {
-            var tosend = sendqueue.shift()
-            self.log.debug('client','sendqueue-processing',
-                           sendqueue.length+1,config,tosend)
-            sendclient.send.call(tosend.instance,tosend.args,tosend.done)
-            setImmediate(sendnext)
-          }
-        }
-        sendnext()
-      })    
-    
-    return self;
-  }
-
-
   function parseConfig( args, options ) {
     var out = {}
 
@@ -749,34 +647,6 @@ function make_seneca( initial_options ) {
     }
 
     return out
-  }
-
-
-  function api_cluster() {
-    /* jshint loopfunc:true */
-    var self = this
-
-    var cluster = require('cluster')
-
-    if( cluster.isMaster ) {
-      require('os').cpus().forEach(function() {
-        cluster.fork()
-      })
-
-      cluster.on('disconnect', function(worker) {
-        cluster.fork()
-      })
-
-      var noopinstance = self.delegate()
-      for( var fn in noopinstance ) {
-        if( _.isFunction(noopinstance[fn]) ) {
-          noopinstance[fn] = function() { return noopinstance; }
-        }
-      }
-
-      return noopinstance;
-    }
-    else return self;
   }
 
 
@@ -888,8 +758,7 @@ function make_seneca( initial_options ) {
         null == pattern.out$ && 
         null == pattern.error$ &&
         null == pattern.cache$ &&
-        null == pattern.default$ &&
-        null == pattern.client$ ) 
+        null == pattern.default$)
     {
       pattern.in$ = true
     }
@@ -1038,10 +907,6 @@ function make_seneca( initial_options ) {
   
   function api_findact(args) {
     var actmeta = private$.actrouter.find(args)
-
-    if( !actmeta ) {
-      actmeta = private$.clientrouter.find(args)
-    }
 
     return actmeta
   }
@@ -1663,14 +1528,6 @@ function make_seneca( initial_options ) {
     // For example, data for individual web requests.
     delegate.context = {}
 
-    delegate.client = function() {
-      return self.client.call(this,arguments)
-    }
-
-    delegate.listen = function() {
-      return self.listen.call(this,arguments)
-    }
-
     return delegate
   }
 
@@ -2047,8 +1904,6 @@ function ERRMSGMAP() {
     act_execute: 'Action <%=pattern%> failed: <%=message%>.',
     act_callback: 'Action <%=pattern%> callback threw: <%=message%>.',
 
-
-    no_client: 'Transport client was not created; arguments were: "<%=args%>".',
 
     invalid_options: 'Invalid options; <%=message%>',
 
