@@ -1263,60 +1263,6 @@ function make_seneca( initial_options ) {
   }
 
 
-  // TODO: move repl functionality to seneca-reply
-
-  root.inrepl = function() {
-    var self = this
-
-    self.on('act-out',function() {
-      logging.handlers.print.apply(null,arr(arguments))
-    })
-    
-    self.on('error',function(err) {
-      var args = arr(arguments).slice()
-      args.unshift('ERROR: ')
-      logging.handlers.print.apply(null,arr(args))
-    })
-  }
-
-
-  root.startrepl = function(in_opts) {
-    var self = this
-
-    var repl_opts = _.extend({repl:{listen:10170}},so,in_opts)
-    
-    net.createServer(function (socket) {
-      var actout =  function() {
-        socket.write(''+arr(arguments)+'\n')
-      }
-      
-      var r = repl.start({
-        prompt: 'seneca '+socket.remoteAddress+':'+socket.remotePort+'> ', 
-        input: socket, output: socket, terminal: true, useGlobal: false
-      })
-      
-      r.on('exit', function () {
-        self.removeListener('act-out',actout)
-        socket.end()
-      })
-      
-      r.context.seneca = self.delegate()
-      
-      var orig_act = r.context.seneca.act
-      r.context.seneca.act = function() {
-        var args = arr(arguments)
-        args.repl$=true
-        orig_act.apply(self,args)
-        return r.context.seneca
-      }
-
-      self.on('act-out',actout)
-      
-    }).listen(repl_opts.repl.listen)
-  }
-
-
-  
   /// Return self. Mostly useful as a check that this is a Seneca instance.
   function api_seneca() {
     return this
