@@ -3,13 +3,6 @@
 "use strict"; 
 
 
-// TODO: handle multiple response callbacks!!!
-
-
-// Current version, access using _seneca.version_ property
-var VERSION = '0.6.1'
-
-
 // Node API modules
 var util     = require('util')
 var events   = require('events')
@@ -92,10 +85,6 @@ function make_seneca( initial_options ) {
   root.fixedargs = {}
 
   root.context = {}
-
-  // Expose the current version of Seneca
-  root.version = VERSION
-
 
 
   // ### seneca.add

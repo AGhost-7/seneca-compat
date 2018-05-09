@@ -1,2 +1,0 @@
-
-require('./not-a-module')
