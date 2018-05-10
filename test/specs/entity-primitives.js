@@ -1,7 +1,7 @@
-var assert = require('assert');
-var seneca = require('../..')();
+const assert = require('assert');
+const seneca = require('../..')();
 
-describe('entity', () => {
+describe('entity-primitives', () => {
 
 	describe('make', () => {
 
@@ -25,7 +25,7 @@ describe('entity', () => {
 		});
 
 		it('chain', () => {
-			const foo = seneca.make('bar').make$({ base: 'foo'}, {
+			const foo = seneca.make('-/foo/-').make$('bar', {
 				name: 'foobar',
 				name$: 'foobar',
 				id$: 1
@@ -111,10 +111,11 @@ describe('entity', () => {
 			const foo = seneca.make('foo/bar', {
 				a$: 1
 			});
+			foo.id = 1;
 			foo.name = 'foobar';
 			assert.deepEqual(
 				foo.data$(),
-				{ entity$: '-/foo/bar', name: 'foobar' });
+				{ entity$: '-/foo/bar', id: 1, name: 'foobar' });
 		});
 
 		it('set', () => {
@@ -129,74 +130,10 @@ describe('entity', () => {
 
 	});
 
-	describe('save', () => {
-
-		var lastArgs;
-		seneca.add({
-			cmd: 'save',
-			base: 'foo',
-			name: 'bar',
-			role: 'entity'
-		}, (args, done) => {
-			lastArgs = args;
-			done(null, args.ent);
-		});
-
-		it('no assign', (done) => {
-			var foo = seneca.make('foo/bar');
-			foo.name = 'foobar';
-			foo.save$((err) => {
-				if(err) return done(err);
-				assert.equal(lastArgs.cmd, 'save');
-				assert.equal(lastArgs.base, 'foo');
-				assert.equal(lastArgs.name, 'bar');
-				assert.equal(lastArgs.ent.name, 'foobar');
-				assert.equal(foo.name, 'foobar');
-				done();
-			});
-		});
-
-		it('assign on save', (done) => {
-			var foo = seneca.make('foo/bar');
-			foo.name = 'foobar';
-			foo.save$({ baz: false }, (err) => {
-				if(err) return done(err);
-				assert.equal(foo.name, 'foobar');
-				assert.equal(foo.baz, false);
-				done();
-			});
-		});
-
-		it('handles garbage', (done) => {
-			var foo = seneca.make('foo/bar', { name: 'foobar' });
-			lastArgs = null;
-			foo.save$(null, function(err) {
-				if(err) return done(err);
-				assert(lastArgs);
-				assert.equal(foo.name, 'foobar');
-				done();
-			});
-		});
-
-	});
-
-	describe.skip('load', () => {
-	});
-
-	describe.skip('list', () => {
-	});
-
-	describe.skip('remove', () => {
-	});
-
-	describe.skip('delete', () => {
-	});
-
 	describe.skip('clone', () => {
 	});
 
 	describe.skip('is', () => {
 	});
-
 
 });
