@@ -565,13 +565,9 @@ function make_seneca( initial_options ) {
     return exportval;
   }
 
-
-
-
   // all optional
-	function api_make(entity$, assign) {
-		const canon = private$.entity.newCanon$(entity$);
-		return new Entity(canon, this);
+	function api_make(input, assign) {
+		return Entity.create(input, assign, this);
   }
   root.make$ = root.make
 
@@ -1228,7 +1224,7 @@ function make_seneca( initial_options ) {
 
 
 
-    act_param_check( origargs, actmeta, function( err ) {
+		act_param_check( origargs, actmeta, function( err ) {
       if( err ) return act_done(err);
 
       var execspec = {
@@ -1261,7 +1257,7 @@ function make_seneca( initial_options ) {
       }
 
       private$.executor.execute(execspec)
-    })
+		})
   }
 
 
@@ -1532,14 +1528,6 @@ function make_seneca( initial_options ) {
 
     return so
   }
-
-
-
-  // Create entity delegate.
-  var sd = root.delegate()
-
-  private$.entity = new Entity({}, sd);
-
 
   // DEPRECATED 
   // for use with async
