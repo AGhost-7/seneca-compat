@@ -45,6 +45,10 @@ describe('entity-primitives', () => {
 
 	});
 
+	it('serializes', () => {
+		JSON.stringify(seneca.make('foo/bar', { foo: 'bar' }));
+	});
+
 	describe('canon', () => {
 
 		it('name only', () => {
