@@ -3,9 +3,25 @@ var common = require('../../lib/common');
 
 const defaults = {};
 const args = {
-	user$: {},
-	actid$: 'foo'
+	q: {
+		nick: 'foobar'
+	},
+	cmd: 'login',
+	role: 'user',
+	password: 'foobar',
+	email: 'foo@bar.com',
+	user: {
+		id: 'foo',
+		nick: 'foobar',
+		password: 'foobar',
+		email: 'foo@bar.com'
+	}
 };
+
+for(var i = 0; i < 10; i++) {
+	args[String.fromCodePoint(65 + i)] = 'this is sample data';
+}
+
 const fixed = {
 	id$: 'foobar',
 	nick: 'foobar',
@@ -16,7 +32,7 @@ const fixed = {
 };
 const omits = 'role,cmd,password';
 
-let iterations = 1000000,
+let iterations = 100000,
 	start,
 	end;
 
