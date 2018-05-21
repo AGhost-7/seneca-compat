@@ -1,3 +1,3 @@
 [submodule "perf/seneca"]
 	path = perf/seneca
-	url = git@github.com:nherment/seneca.git
+	url = https://github.com/nherment/seneca.git
