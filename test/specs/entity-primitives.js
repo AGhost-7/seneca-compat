@@ -134,7 +134,16 @@ describe('entity-primitives', () => {
 
 	});
 
-	describe.skip('clone', () => {
+	it('clone', () => {
+		var foo = seneca.make('foo/bar', {
+			a: 1,
+			b: '2'
+		});
+
+		var clone = foo.clone$();
+		assert.equal(clone.a, 1);
+		assert.equal(clone.b, 2);
+		assert.equal(clone.entity$, '-/foo/bar');
 	});
 
 	describe.skip('is', () => {
