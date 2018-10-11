@@ -254,7 +254,6 @@ function make_seneca( initial_options ) {
             },
 
             default_plugins: {
-              basic:       true
             }
           }
         )
