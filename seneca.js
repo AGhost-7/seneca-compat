@@ -254,10 +254,7 @@ function make_seneca( initial_options ) {
             },
 
             default_plugins: {
-              basic:       true, 
-              'mem-store': true, 
-              transport:   true, 
-              web:         true, 
+              basic:       true
             }
           }
         )
