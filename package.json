@@ -16,8 +16,8 @@
     "seneca",
     "compat"
   ],
-  "version": "v0.1.0",
-  "license": "LGPL-3.0-only",
+  "version": "v0.1.1",
+  "license": "LGPL-2.1",
   "homepage": "http://senecajs.org",
   "author": "",
   "contributors": [],
@@ -37,15 +37,17 @@
     "rolling-stats": "~0.1.1",
     "use-plugin": "~0.3.1"
   },
-  "main": "seneca.js",
+  "main": "lib/seneca.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/AGhost-7/seneca-compat.git"
   },
   "scripts": {
-    "test": "SENECA_LOG=silent mocha --recursive test/specs/*.js"
+    "test": "SENECA_LOG=silent mocha --recursive test/specs/*.js",
+    "build": "babel src -d lib"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "jshint": "^2.9.5",
     "mocha": "^5.1.1"
   }

@@ -9,7 +9,7 @@ node_modules
 README.html
 *.off
 *-off
-.DS_Store
 npm-debug.log
 mem.json
 /package-lock.json
+/lib
